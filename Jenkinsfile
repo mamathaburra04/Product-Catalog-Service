@@ -12,15 +12,27 @@ pipeline {
       }
       post {
         success {
-          echo 'Build succeeded'
           archiveArtifacts artifacts: 'target/*.jar', fingerprint: true
         }
-        failure {
-          echo 'Build failed'
+      }
+    }
+
+    stage('Deploy') {
+      steps {
+        script {
+          sh 'mkdir -p /tmp/product-catalog-deploy'
         }
+
+        sh "pkill -f 'product-catalog' || true"
+
+        sh 'cp target/*.jar /tmp/product-catalog-deploy/product-catalog.jar'
+
+        sh "nohup java -jar /tmp/product-catalog-deploy/product-catalog.jar > /tmp/product-catalog-deploy/app.log 2>&1 &"
+
+        sh 'sleep 3 || true'
+        sh 'echo \"--- last 80 lines of app.log ---\"'
+        sh 'tail -n 80 /tmp/product-catalog-deploy/app.log || true'
       }
     }
   }
 }
-
-
