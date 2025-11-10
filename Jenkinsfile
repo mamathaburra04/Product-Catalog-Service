@@ -8,7 +8,8 @@ pipeline {
 
     stage('Build') {
       steps {
-        sh 'mvn -B clean package -DskipTests'
+        // use absolute path to maven to avoid PATH issues for Jenkins service
+        sh '/opt/homebrew/bin/mvn -B clean package -DskipTests'
       }
       post {
         success {
